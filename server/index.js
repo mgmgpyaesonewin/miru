@@ -1,12 +1,47 @@
 var http = require('http');
 var net = require('net');
 var axios = require('axios');
+var _ = require('lodash');
+const MongoClient = require('mongodb').MongoClient
+var url = 'mongodb://localhost/miru';
+var fs = require('fs'),
+    path = require('path'),    
+    porn_sites_filePath = path.join(__dirname, '/data_url/porn_sites.json'),
+    porn_ads_filePath = path.join(__dirname, '/data_url/porn_ads.json');
  
 var debugging = false;
 var text_engine = 'http://127.0.0.1:8081/';
  
 var regex_hostport = /^([^:]+)(:([0-9]+))?$/;
+var porn_sites = '';
+var porn_ads = '';
+
+fs.readFile(porn_sites_filePath, {encoding: 'utf-8'}, function(err,data){
+  if (!err) {
+      porn_sites = JSON.parse(data);
+  } else {
+      console.log(err);
+  }
+});
+
+fs.readFile(porn_ads_filePath, {encoding: 'utf-8'}, function(err,data){
+  if (!err) {
+      porn_ads = JSON.parse(data);
+  } else {
+      console.log(err);
+  }
+});
  
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  var dbo = db.db('miru');
+  dbo.createCollection("history", function(err, res) {
+    if (err) throw err;
+    console.log("Collection created!");
+    db.close();
+  });
+});
+
 function getHostPortFromString( hostString, defaultPort ) {
   var host = hostString;
   var port = defaultPort;
@@ -24,6 +59,7 @@ function getHostPortFromString( hostString, defaultPort ) {
 
 // handle a HTTP proxy request
 function httpUserRequest( userRequest, userResponse ) {
+  console.log(userRequest.url);
   if ( debugging ) {
     // console.log( '  > request: %s', userRequest.url );
   }
@@ -38,7 +74,23 @@ function httpUserRequest( userRequest, userResponse ) {
   // Processing Part
   axios.get(`${text_engine}?imsi=${link}`)
     .then(function (response) {
-      console.log(response.data);
+      MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db('miru');
+        link = link.replace('http://', '');
+        link = link.substring(0, link.length - 1);
+        console.log(link);
+        console.log(porn_sites);
+        dbo.collection('history').save({
+          link: response.data,
+          porn_site: porn_sites.indexOf(link) > -1,
+          porn_ads: porn_ads.indexOf(link) > -1,
+        }, (err, result) => {
+          if (err) return console.log(err);
+          console.log('saved link to database');
+        });
+        db.close();
+      });
     })
     .catch(function (error) {
       console.log(error);
