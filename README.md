@@ -1,6 +1,9 @@
+#Open Chrome
+open -a Google\ Chrome --args --disable-web-security --user-data-dir
+
 #Start text sentiment engine
 python3 setup.py
--- ADDR - PORT -> http://127.0.0.1:8081/?imsi=yesno.wtf
+-- ADDR - PORT -> http://127.0.0.1:8083/?imsi=yesno.wtf
 
 #Start node proxy server
 node index.js -d -p 8000
@@ -15,4 +18,6 @@ yarn run dev -> http://localhost:8082
 #Start Client API
 node server.js | ./node_modules/.bin/nodemon server.js
 -- Addr -> port -> http://localhost:3000/
+
+
 

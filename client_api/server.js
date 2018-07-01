@@ -7,7 +7,7 @@ app.listen(3000, function() {
   console.log('listening on 3000')
 });
 
-app.get('/', function (req, res) {
+app.get('/links', function (req, res) {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db('miru');

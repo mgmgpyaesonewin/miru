@@ -1,6 +1,7 @@
 var http = require('http');
 var net = require('net');
 var axios = require('axios');
+var moment = require('moment');
 var _ = require('lodash');
 const MongoClient = require('mongodb').MongoClient
 var url = 'mongodb://localhost/miru';
@@ -10,7 +11,7 @@ var fs = require('fs'),
     porn_ads_filePath = path.join(__dirname, '/data_url/porn_ads.json');
  
 var debugging = false;
-var text_engine = 'http://127.0.0.1:8081/';
+var text_engine = 'http://127.0.0.1:8083/';
  
 var regex_hostport = /^([^:]+)(:([0-9]+))?$/;
 var porn_sites = '';
@@ -85,6 +86,7 @@ function httpUserRequest( userRequest, userResponse ) {
           link: response.data,
           porn_site: porn_sites.indexOf(link) > -1,
           porn_ads: porn_ads.indexOf(link) > -1,
+          date: moment().format('MMMM Do YYYY, h:mm:ss a'),
         }, (err, result) => {
           if (err) return console.log(err);
           console.log('saved link to database');
