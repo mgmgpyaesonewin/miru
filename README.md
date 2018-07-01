@@ -50,7 +50,7 @@ DETECTED ELEMENTS
 
 #Start mongo brew services start mongodb
 
-#Start Client yarn run dev -> http://localhost:8082
+#Start Client npm run serve -> http://localhost:8082
 
 #Start Client API node server.js | ./node_modules/.bin/nodemon server.js -- Addr -> port -> http://localhost:3000/
 
